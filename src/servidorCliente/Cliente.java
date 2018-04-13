@@ -25,12 +25,12 @@ public class Cliente {
 			protocolo.setAlgSimetrico(simetrico);
 			protocolo.setAlgHmac(hmac);
 			
-			protocolo.procesarCadena(null);
+			protocolo.procesarCadena(null,null);
 			
 			String respuesta;
 			while ((respuesta = reader.readLine()) != null) {
 				System.out.println("Servidor contestó: " + respuesta);
-				String salida = protocolo.procesarCadena(respuesta);
+				String salida = protocolo.procesarCadena(respuesta,null);
 				if (salida != null) {
 					System.out.println("Cliente enviando: " + salida);
 					printer.println(salida);
