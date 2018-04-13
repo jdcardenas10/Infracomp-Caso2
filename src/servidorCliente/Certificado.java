@@ -13,6 +13,8 @@ import javax.security.auth.x500.X500Principal;
 
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.X509Extensions;
@@ -66,7 +68,7 @@ public class Certificado {
 		certifGen.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(false));
 		certifGen.addExtension(X509Extensions.KeyUsage, true, new KeyUsage(KeyUsage.digitalSignature|KeyUsage.keyEncipherment) );
 		certifGen.addExtension(X509Extensions.ExtendedKeyUsage, true, new ExtendedKeyUsage(KeyPurposeId.id_kp_serverAuth));
-		//certifGen.addExtension(X509Extensions.SubjectAlternativeName, false, new GeneralNames(new GeneralName.rfc822Name,"test@test.test")));
+		certifGen.addExtension(X509Extensions.SubjectAlternativeName, false, new GeneralNames(new GeneralName(GeneralName.rfc822Name,"test@test.test")));
 		X509Certificate cert= certifGen.generateX509Certificate(pair.getPrivate(), "BC");
 		
 		certificado=cert;
