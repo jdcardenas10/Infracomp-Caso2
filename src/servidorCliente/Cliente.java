@@ -2,7 +2,9 @@ package servidorCliente;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -18,6 +20,8 @@ public class Cliente {
 		
 		try {
 			Socket socket=new Socket("localhost",19999);
+			InputStream in=socket.getInputStream();
+			OutputStream out=socket.getOutputStream();
 			PrintWriter printer=new PrintWriter(socket.getOutputStream(),true);
 			BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
@@ -25,23 +29,14 @@ public class Cliente {
 			protocolo.setAlgSimetrico(simetrico);
 			protocolo.setAlgHmac(hmac);
 			
-			protocolo.procesarCadena(null,null);
-			
-			String respuesta;
-			while ((respuesta = reader.readLine()) != null) {
-				System.out.println("Servidor contestó: " + respuesta);
-				String salida = protocolo.procesarCadena(respuesta,null);
-				if (salida != null) {
-					System.out.println("Cliente enviando: " + salida);
-					printer.println(salida);
-				}
-			}	
+			protocolo.procesarCadena(in,out,printer,reader);
+	
 			
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -18,9 +18,10 @@ import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.crypto.tls.SignatureAlgorithm;
+//import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 
+@SuppressWarnings("deprecation")
 public class Certificado {
 
 	X509Certificate certificado;
@@ -41,11 +42,8 @@ public class Certificado {
 		setPrivada(pair.getPrivate());
 		setPublica(pair.getPublic());
 		
-		SignatureAlgorithm alg;
-		alg= new SignatureAlgorithm();
-		
 		BigInteger suma= BigInteger.valueOf(0);
-		for (int i = 2; i < 5000; i++)
+		for (int i = 5; i < 5000; i++)
 		{
 			if(i%5==0)
 			{
@@ -74,7 +72,6 @@ public class Certificado {
 		certificado=cert;
 		
 	}
-	
 	
 	public PrivateKey getPrivada() 
 	{
