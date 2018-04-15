@@ -18,7 +18,6 @@ import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.X509Extensions;
-//import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 
 @SuppressWarnings("deprecation")
@@ -62,7 +61,7 @@ public class Certificado {
 		certifGen.setNotAfter(new Date(System.currentTimeMillis()+20000));
 		certifGen.setSubjectDN(dnName);
 		certifGen.setPublicKey(pair.getPublic());
-		certifGen.setSignatureAlgorithm("SHA1withRSA");
+        certifGen.setSignatureAlgorithm("SHA256withRSA");
 		certifGen.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(false));
 		certifGen.addExtension(X509Extensions.KeyUsage, true, new KeyUsage(KeyUsage.digitalSignature|KeyUsage.keyEncipherment) );
 		certifGen.addExtension(X509Extensions.ExtendedKeyUsage, true, new ExtendedKeyUsage(KeyPurposeId.id_kp_serverAuth));

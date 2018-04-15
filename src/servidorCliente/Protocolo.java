@@ -26,8 +26,7 @@ import org.bouncycastle.util.encoders.Hex;
 
 public class Protocolo {
 	
-	private int estado;
-	
+	//Atributos
 	private Certificado certificado;
 	
 	private String algSimetrico;
@@ -37,47 +36,37 @@ public class Protocolo {
 	private PublicKey publicKeySer;
 
 	private byte[] llaveSimetrica;
-	
-	private static final int INICIAR_SESION = 0;
-	private static final int INTERCAMBIAR_ALGORITMOS=1;
-	private static final int AUTENTICAR_CLIENTE= 2;
-	private static final int AUTENTICAR_SERVIDOR=3;
-	private static final int RECIBIR_LLAVE=4;
-	
-	
 
+	//Constructor
 	public Protocolo() throws Exception {
-		estado=INICIAR_SESION;
 		certificado=new Certificado();
+		algAsimetrico="RSA";
 	}
 
 	public void procesarCadena(InputStream in,OutputStream out,PrintWriter printer,BufferedReader reader) throws IOException, CertificateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
-		//switch(estado){
-		//case INICIAR_SESION:
-			estado=INTERCAMBIAR_ALGORITMOS;
-				printer.println("HOLA");
-		//case INTERCAMBIAR_ALGORITMOS:
+
+			printer.println("HOLA");
+			
 			if (reader.readLine().equals("INICIO")) {
 				printer.println("ALGORITMOS:" + algSimetrico + ":" + algAsimetrico + ":" + algHmac);}
 			if(reader.readLine().equals("ESTADO:OK")){
-				estado=AUTENTICAR_CLIENTE;
 				printer.println("CERTCLNT");
 			} else {
 				throw new ProtocolException("La entrada no es valida en el inicio");
 			}
-		//case AUTENTICAR_CLIENTE:
+
 			X509Certificate cert = certificado.certificado;
 			byte[] mybyte = cert.getEncoded();
 			out.write(mybyte);
 			out.flush();
 			if(reader.readLine().equals("ESTADO:OK")){
-				estado=AUTENTICAR_SERVIDOR;	
+				System.out.println("Se envio el certificado");
 			} else {
-				throw new ProtocolException("No se pudo mandar el certificado");
+				throw new ProtocolException("No se pudo enviar el certificado");
 			}
-		//case AUTENTICAR_SERVIDOR:
+
 			if(!"CERTSRV".equals(reader.readLine())){
-				throw new ProtocolException("No ha comenzado a mandar el protocolo del cliente");
+				throw new ProtocolException("No ha podido mandar el protocolo del cliente");
 			}
 			
 			try{
@@ -85,7 +74,6 @@ public class Protocolo {
 			in.read(certificado);
 			System.out.println(certificado);
 			
-			//X509Certificate 
 			X509Certificate certSer = (X509Certificate) CertificateFactory.getInstance("X.509")
 					.generateCertificate(new ByteArrayInputStream(certificado));
 			publicKeySer = certSer.getPublicKey();
@@ -97,8 +85,10 @@ public class Protocolo {
 				e.printStackTrace();
 				printer.println("ESTADO:ERROR");
 			}
-		//case RECIBIR_LLAVE:
+
 			String entrada = reader.readLine();
+			
+			if(!entrada.substring(6).equals("")){
 			String[] div = entrada.split(":");
 			
 			Cipher cipher = Cipher.getInstance(algAsimetrico);
@@ -114,17 +104,31 @@ public class Protocolo {
 
 			printer.println("ACT1:"+Hex.toHexString(cipher1.doFinal((posicion).getBytes())));
 			
-			Cipher cipher2 = Cipher.getInstance(algSimetrico);
-			cipher2.init(Cipher.ENCRYPT_MODE, keySpec);
+			Cipher cipher2 = Cipher.getInstance(algAsimetrico);
+			cipher2.init(Cipher.ENCRYPT_MODE, publicKeySer);
 			
-			printer.println("ACT2:"+Hex.toHexString(cipher2.doFinal(((posicion).hashCode()+"").getBytes())));
+			Mac mac = Mac.getInstance(algHmac);
+			SecretKeySpec keySpec2 = new SecretKeySpec(llaveSimetrica, algHmac);
+			mac.init(keySpec2);
+			byte[] parcial = mac.doFinal(posicion.getBytes());
+			String mandar= Hex.toHexString(cipher2.doFinal(parcial));
+			System.out.println("Yo enviando: " + mandar);
+			
+			printer.println("ACT2:"+mandar);
 			
 			if("ESTADO:OK".equals(reader.readLine())){
-				System.out.println("Se acabo");
+				System.out.println("Se acabo: Victoria!");
 			}
-		//}	
+			}else{
+				printer.println("ACT1");
+				printer.println("ACT2");
+				if("ESTADO:OK".equals(reader.readLine())){
+					System.out.println("Se acabo: Victoria!");
+				}
+			}
 	}
 
+	//Metodos
 	public String getAlgSimetrico() {
 		return algSimetrico;
 	}
@@ -148,6 +152,4 @@ public class Protocolo {
 	public void setAlgHmac(String algHmac) {
 		this.algHmac = algHmac;
 	}	
-	
-	
 }

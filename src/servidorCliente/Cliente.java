@@ -15,15 +15,15 @@ public class Cliente {
 	@SuppressWarnings("resource")
 	public static void main(String args[]){
 		
-		String simetrico = args[0];
-		String hmac = args[1];
+		String simetrico = "DES";
+		String hmac = "HMACSHA1";
 		
 		try {
 			Socket socket=new Socket("localhost",19999);
 			InputStream in=socket.getInputStream();
 			OutputStream out=socket.getOutputStream();
-			PrintWriter printer=new PrintWriter(socket.getOutputStream(),true);
-			BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter printer=new PrintWriter(out,true);
+			BufferedReader reader=new BufferedReader(new InputStreamReader(in));
 			
 			Protocolo protocolo = new Protocolo();
 			protocolo.setAlgSimetrico(simetrico);
